@@ -15,7 +15,7 @@ let package = Package(
             targets: ["LNSWeekView"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/alldritt/LNSSwiftUIExtras", branch: "main"),
+        .package(url: "https://github.com/alldritt/LNSSwiftUIExtras.git", branch: "main"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
