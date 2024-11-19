@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "lnsswiftuiextras",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/alldritt/LNSSwiftUIExtras.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "d710d264ab0ca37cc3f1d3d16eec6bde1b5a6c06"
+      }
+    }
+  ],
+  "version" : 2
+}
