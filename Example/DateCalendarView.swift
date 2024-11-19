@@ -38,6 +38,9 @@ struct DateCalendarView: View {
                     }
                 )
             }
+            .overlay(
+                Text("\(date.dayOfMonth)")
+            )
             .onAppear() {
                 withAnimation(.linear(duration: appearAnimationDuration)) {
                     size = active ? 1 : 0.1

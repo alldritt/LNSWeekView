@@ -11,7 +11,7 @@
 		A5B2E6C12A8187FC00E9B693 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5B2E6C02A8187FC00E9B693 /* ContentView.swift */; };
 		A5B2E6C32A8187FD00E9B693 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A5B2E6C22A8187FD00E9B693 /* Assets.xcassets */; };
 		A5B2E6C72A8187FD00E9B693 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A5B2E6C62A8187FD00E9B693 /* Preview Assets.xcassets */; };
-		A5B2E6CE2A819B3A00E9B693 /* DateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5B2E6CD2A819B3A00E9B693 /* DateView.swift */; };
+		A5B2E6CE2A819B3A00E9B693 /* DateCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5B2E6CD2A819B3A00E9B693 /* DateCalendarView.swift */; };
 		A5D21A022CED2C65006F741F /* LNSWeekView in Frameworks */ = {isa = PBXBuildFile; productRef = A5D21A012CED2C65006F741F /* LNSWeekView */; };
 /* End PBXBuildFile section */
 
@@ -22,7 +22,7 @@
 		A5B2E6C22A8187FD00E9B693 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A5B2E6C42A8187FD00E9B693 /* Example.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Example.entitlements; sourceTree = "<group>"; };
 		A5B2E6C62A8187FD00E9B693 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		A5B2E6CD2A819B3A00E9B693 /* DateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateView.swift; sourceTree = "<group>"; };
+		A5B2E6CD2A819B3A00E9B693 /* DateCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateCalendarView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,7 +57,7 @@
 			isa = PBXGroup;
 			children = (
 				A5B2E6BE2A8187FC00E9B693 /* ExampleApp.swift */,
-				A5B2E6CD2A819B3A00E9B693 /* DateView.swift */,
+				A5B2E6CD2A819B3A00E9B693 /* DateCalendarView.swift */,
 				A5B2E6C02A8187FC00E9B693 /* ContentView.swift */,
 				A5B2E6C22A8187FD00E9B693 /* Assets.xcassets */,
 				A5B2E6C42A8187FD00E9B693 /* Example.entitlements */,
@@ -151,7 +151,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A5B2E6C12A8187FC00E9B693 /* ContentView.swift in Sources */,
-				A5B2E6CE2A819B3A00E9B693 /* DateView.swift in Sources */,
+				A5B2E6CE2A819B3A00E9B693 /* DateCalendarView.swift in Sources */,
 				A5B2E6BF2A8187FC00E9B693 /* ExampleApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
