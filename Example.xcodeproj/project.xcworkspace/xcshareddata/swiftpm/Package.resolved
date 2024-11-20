@@ -1,4 +1,5 @@
 {
+  "originHash" : "a4e50416c2daf15d6aedc824d15256967e24162dfea74ded2fb4e89fff5596bd",
   "pins" : [
     {
       "identity" : "lnsswiftuiextras",
@@ -6,9 +7,9 @@
       "location" : "https://github.com/alldritt/LNSSwiftUIExtras.git",
       "state" : {
         "branch" : "main",
-        "revision" : "d710d264ab0ca37cc3f1d3d16eec6bde1b5a6c06"
+        "revision" : "64e60fcca01ab88dcc0c6b52fcf6cd9a82e1c636"
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
