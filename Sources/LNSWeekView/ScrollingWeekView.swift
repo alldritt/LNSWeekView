@@ -45,7 +45,9 @@ struct DaysView<Content: View>: View {
             let contentView = content(date)
                 .frame(width: itemWidth)
                 .onTapGesture {
-                    value = date
+                    withAnimation {
+                        value = date
+                    }
                 }
 
             contentViewCache[date] = contentView
@@ -174,7 +176,11 @@ struct ScrollingWeekView<Content: View>: View {
                         let contentOffset = min(max(0, contentWidth / 2 - baseOffset - itemWidth / 2), contentWidth - itemWidth)
                         let offsetDate = dateRange.start.next(day: Int((contentOffset / (itemWidth + itemSpacing)).rounded()))
                         
-                        selectedDate = offsetDate
+                        if offsetDate != selectedDate {
+                            withAnimation {
+                                selectedDate = offsetDate
+                            }
+                        }
                     })
                     .onEnded({ event in
                         // Scroll to where user dragged
@@ -213,7 +219,11 @@ struct ScrollingWeekView<Content: View>: View {
                         let contentOffset = min(max(0, contentWidth / 2 - baseOffset - itemWidth / 2), contentWidth - itemWidth)
                         let offsetDate = dateRange.start.next(day: Int((contentOffset / (itemWidth + itemSpacing)).rounded()))
                         
-                        selectedDate = offsetDate
+                        if offsetDate != selectedDate {
+                            withAnimation {
+                                selectedDate = offsetDate
+                            }
+                        }
                     })
                 )
             }
