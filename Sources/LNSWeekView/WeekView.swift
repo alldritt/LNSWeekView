@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import LNSSwiftUIExtras
 
 
 struct CurrentDayIndicator: Shape {
