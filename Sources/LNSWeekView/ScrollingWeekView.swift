@@ -109,7 +109,7 @@ struct ScrollingWeekView<Content: View>: View {
             
     func calculateDateOffset(_ contentWidth: CGFloat, itemWidth: CGFloat, date: Date) -> (offset: CGFloat, dateIndex: Int) {
         let realDate = max(date.zeroHour, dateRange.start)
-        let offsetDays = (DateInterval(start: dateRange.start, end: realDate).duration / oneDay).rounded(.down)
+        let offsetDays = (DateInterval(start: dateRange.start, end: realDate).duration / oneDay).rounded()
         let newOffset = offsetDays * itemWidth + max(0, offsetDays - 1) * itemSpacing + itemWidth / 2
         
         return (offset: -(newOffset - contentWidth / 2), dateIndex: Int(offsetDays))
@@ -156,7 +156,7 @@ struct ScrollingWeekView<Content: View>: View {
                 }
                 .onChange(of: selectedDate) { newValue in
                     if !isDragging { // only update display if we are not dragging...
-                        let _ = log("onChange selectedDate")
+                        let _ = log("onChange selectedDate - \(newValue)")
                         
                         let (newOffset, _) = calculateDateOffset(contentWidth, itemWidth: itemWidth, date: newValue)
                         
