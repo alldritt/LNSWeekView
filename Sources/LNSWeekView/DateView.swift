@@ -27,7 +27,7 @@ struct DayOfWeekView: View {
                 VStack {
                     GeometryReader { g in
                         Text(weekdaySymbol)
-                            .font(.system(size: g.size.height * 0.7).bold())
+                            .font(.system(size: g.size.height * 0.6).bold())
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .foregroundColor(isToday ? (colorScheme == .dark ? .black : .white) :
                                                 (colorScheme == .dark ? .white.opacity(0.4) : .black.opacity(0.4)))
@@ -46,27 +46,21 @@ struct DateView<DateContent: View>: View {
     @State var frame = CGRect.zero
 
     var body: some View {
-        let size = max(frame.width, frame.height)
-        let dayHeightPercent = CGFloat(0.3)
+        let dayHeightPercent = CGFloat(0.27)
         let daySpacePercent = CGFloat(0.1)
         
         VStack(spacing: 0) {
-            //  Display day of week
-            DayOfWeekView(date: date)
-                .frame(width: frame.width, height: frame.height * dayHeightPercent)
-                //.border(.green)
+            GeometryReader { g in
+                //  Display day of week
+                DayOfWeekView(date: date)
+                    .frame(width: g.size.width, height: g.size.height * dayHeightPercent)
 
-            //  Display calendat content for this day
-            content(date, today)
-                .frame(width: frame.width, height: frame.width)
-                .padding(EdgeInsets(top: size * daySpacePercent,
-                                    leading: 0,
-                                    bottom: 0, //size * daySpacePercent,
-                                    trailing: 0))
+                //  Display calendat content for this day
+                content(date, today)
+                    .frame(width: g.size.width, height: g.size.height * (1 - dayHeightPercent - daySpacePercent))
+                    .offset(y: g.size.height * (dayHeightPercent + daySpacePercent))
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .saveFrame(in: $frame)
-        .padding(5)
     }
 }
 

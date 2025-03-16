@@ -24,8 +24,6 @@ import LNSSwiftUIExtras
 //
 
 
-@MainActor var contentViewCache = [Date:any View]()
-
 struct DaysView<Content: View>: View {
     
     @Binding var value: Date
@@ -38,32 +36,22 @@ struct DaysView<Content: View>: View {
     let content: (_ value: Date) -> Content
         
     func view(for date: Date) -> some View {
-        if let contentView = contentViewCache[date] {
-            return AnyView(contentView)
-        }
-        else {
-            let contentView = content(date)
-                .frame(width: itemWidth)
-                .onTapGesture {
-                    withAnimation {
-                        value = date
-                    }
+        let contentView = content(date)
+            .frame(width: itemWidth)
+            .onTapGesture {
+                withAnimation {
+                    value = date
                 }
+            }
 
-            contentViewCache[date] = contentView
-            return AnyView(contentView)
-        }
-    }
-    
-    func cache(view: some View, for date: Date) {
-        contentViewCache[date] = view
+        return AnyView(contentView)
     }
     
     var body: some View {
         HStack(spacing: 0) {
             if firstDateIndex > 0 {
                 Color.clear
-                    .frame(width: CGFloat(firstDateIndex) * (itemWidth + itemSpacing))
+                    .frame(width: CGFloat(firstDateIndex) * (itemWidth + itemSpacing) - itemSpacing / 2)
             }
             HStack(spacing: itemSpacing) {
                 ForEach(firstDateIndex..<lastDateIndex, id: \.self) { day in
@@ -90,17 +78,11 @@ struct ScrollingWeekView<Content: View>: View {
     @State private var dragOffset = CGFloat(0)
     @State private var dateViews = [Date:any View]()
 
-    func log(_ s: String) -> Bool {
-        print("\(s)")
-        return true
-    }
-    
     init(selectedDate: Binding<Date>, dateRange: DateInterval, @ViewBuilder content: @escaping (_ value: Date) -> Content) {
         self._selectedDate = selectedDate
         self.content = content
         
         self.dateRange = DateInterval(start: dateRange.start.zeroHour, end: dateRange.end.zeroHour)
-        let _ = log("init")
    }
 
     var visibleDates: Int {
@@ -116,18 +98,16 @@ struct ScrollingWeekView<Content: View>: View {
     }
     
     var body: some View {
-        let _ = log("body")
-        
         GeometryReader { g in
             let visibleDates = self.visibleDates
-            let itemWidth = (g.size.width - itemSpacing * 7) / 7.7
+            let itemWidth = ((g.size.width - itemSpacing * 7) / 7.7).rounded(.up)
             let screenWidth = g.size.width
-            let contentWidth: CGFloat = CGFloat(visibleDates) * itemWidth + CGFloat(max(0, visibleDates - 1)) * itemSpacing
+            let contentWidth: CGFloat = (CGFloat(visibleDates) * itemWidth + CGFloat(max(0, visibleDates - 1)) * itemSpacing).rounded()
 
             VStack(spacing: 0) {
                 
                 let baseOffset = scrollOffset + dragOffset
-                let contentOffset = min(max(0, contentWidth / 2 - baseOffset - itemWidth / 2), contentWidth - itemWidth)
+                let contentOffset = min(max(0, contentWidth / 2 - baseOffset - itemWidth / 2), contentWidth - itemWidth) 
 
                 let leftOffset = max(0, contentOffset - screenWidth / 2)
                 let rightOffset = leftOffset + screenWidth
@@ -154,11 +134,9 @@ struct ScrollingWeekView<Content: View>: View {
                     
                     scrollOffset = newOffset
                 }
-                .onChange(of: selectedDate) { newValue in
+                .onChange(of: selectedDate) {
                     if !isDragging { // only update display if we are not dragging...
-                        let _ = log("onChange selectedDate - \(newValue)")
-                        
-                        let (newOffset, _) = calculateDateOffset(contentWidth, itemWidth: itemWidth, date: newValue)
+                        let (newOffset, _) = calculateDateOffset(contentWidth, itemWidth: itemWidth, date: selectedDate)
                         
                         // Animate snapping
                         withAnimation {
@@ -168,7 +146,6 @@ struct ScrollingWeekView<Content: View>: View {
                 }
                 .gesture(DragGesture()
                     .onChanged({ event in
-                        let _ = log("onChange dragging")
                         isDragging = true
                         dragOffset = event.translation.width
                         
@@ -226,6 +203,11 @@ struct ScrollingWeekView<Content: View>: View {
                         }
                     })
                 )
+                .onChange(of: g.size) {
+                    let (newOffset, _) = calculateDateOffset(contentWidth, itemWidth: itemWidth, date: selectedDate)
+                    
+                    scrollOffset = newOffset
+                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
@@ -242,6 +224,7 @@ struct ISVContentView: View {
     var body: some View {
         VStack {
             Text("\(currentDate.formatted())")
+            CurrentDayIndicator()
             ScrollingWeekView(selectedDate: $currentDate, dateRange: dateRange) { date in
                 Color.green
                     .overlay(Text("\(date.formatted(.iso8601))"))

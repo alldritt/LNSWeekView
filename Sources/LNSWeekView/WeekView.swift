@@ -83,6 +83,7 @@ struct CurrentDateView: View {
 public struct WeekView<DateContent: View>: View {
     
     let dates: Set<Date> // collection of "visible" or "active" dates
+    let visibleDateRange: DateInterval
     @Binding var selectedDate: Date // currently selected or focused date
     @ViewBuilder let content: (_ date: Date, _ today: Date) -> DateContent
 
@@ -91,6 +92,8 @@ public struct WeekView<DateContent: View>: View {
     public init(dates: Set<Date>, selectedDate: Binding<Date>, @ViewBuilder content: @escaping (_: Date, _: Date) -> DateContent) {
         self.dates = dates
         self._selectedDate = selectedDate
+        self.visibleDateRange = DateInterval(start: min(Date.today, dates.min() ?? Date.today),
+                                             end: max(Date.today, dates.max() ?? Date.today))
         self.content = content
     }
     
@@ -103,49 +106,65 @@ public struct WeekView<DateContent: View>: View {
                         selectedDate = Date.today
                     }
                 }
-
-            ScrollingWeekView(selectedDate: $selectedDate, dateRange: DateInterval(start: Date.today.next(day: -20), end: Date.today.next(day: 10))) { date in
-                
+            ScrollingWeekView(selectedDate: $selectedDate,
+                              dateRange: visibleDateRange) { date in
                 DateView(date: date, today: $todayDate, content: content)
             }
-            .frame(height: 70)
-            .padding(.bottom, 10)
+            .frame(height: 82)
+            .padding(.bottom, 8)
         }
-        .onChange(of: todayDate) { newValue in
+        .onChange(of: todayDate) {
             print("currentDate changed")
         }
-        .onChange(of: selectedDate) { newValue in
+        .onChange(of: selectedDate) {
             print("selectedDate changed")
         }
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name.NSCalendarDayChanged).receive(on: DispatchQueue.main)) { _ in
             //  We have progressed from one day to another
             todayDate = Date.today
         }
-
     }
 }
 
 
-struct WeekView_Previews: PreviewProvider {
-    @State var selectedDate = Date.today
-    
-    static var previews: some View {
-        let dates = Set<Date>([Date.today.next(day: -8),
-                               Date.today.next(day: -7),
-                               Date.today.next(day: -3),
-                               Date.today.next(day: -2),
-                               Date.today.next(day: -1),
-                               Date.today,
-                               Date.today.next(day: 4),
-                               Date.today.next(day: 5)])
+#Preview {
+    @Previewable @State var selectedDate = Date.today
+    let dates = Set<Date>([Date.today])
 
-        WeekView(dates: dates,
-                 selectedDate: .constant(Date.yesterday)) {date, today in
-            let active = dates.contains(date)
+    WeekView(dates: dates,
+             selectedDate: $selectedDate) { date, today in
+        let active = dates.contains(date)
+        
+        Circle()
+            .foregroundStyle(active ? Color.orange : Color.gray)
+            .aspectRatio(1.0, contentMode: .fit)
+            .overlay(
+                Text("\(date.dayOfMonth)")
+            )
+    }
+}
 
-            Circle()
-                .foregroundStyle(active ? Color.orange : Color.gray)
-        }
-        .border(.blue)
+#Preview {
+    @Previewable @State var selectedDate = Date.today
+    let dates = Set<Date>([Date.today.next(day: -15),
+                           Date.today.next(day: -8),
+                           Date.today.next(day: -7),
+                           Date.today.next(day: -3),
+                           Date.today.next(day: -2),
+                           Date.today.next(day: -1),
+                           Date.today,
+                           Date.today.next(day: 4),
+                           Date.today.next(day: 5)])
+
+    WeekView(dates: dates,
+             selectedDate: $selectedDate) { date, today in
+        let active = dates.contains(date)
+        
+        Circle()
+            .foregroundStyle(active ? Color.orange : Color.gray)
+            .aspectRatio(1.0, contentMode: .fit)
+            .overlay(
+                Text("\(date.dayOfMonth)")
+            )
     }
 }
