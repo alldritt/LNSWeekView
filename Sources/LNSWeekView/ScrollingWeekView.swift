@@ -27,6 +27,7 @@ import LNSSwiftUIExtras
 struct DaysView<Content: View>: View {
     
     @Binding var value: Date
+    @State private var currentDayChanged = false
 
     let firstDateIndex: Int
     let lastDateIndex: Int
@@ -49,6 +50,8 @@ struct DaysView<Content: View>: View {
     
     var body: some View {
         HStack(spacing: 0) {
+            let _ = currentDayChanged
+            
             if firstDateIndex > 0 {
                 Color.clear
                     .frame(width: CGFloat(firstDateIndex) * (itemWidth + itemSpacing) - itemSpacing / 2)
@@ -60,6 +63,10 @@ struct DaysView<Content: View>: View {
                     view(for: date)
                 }
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name.NSCalendarDayChanged).receive(on: DispatchQueue.main)) { _ in
+            //  Force a redraw when the day changes to move the current day indicator
+            currentDayChanged.toggle()
         }
     }
 }
