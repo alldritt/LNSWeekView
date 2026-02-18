@@ -115,6 +115,11 @@ public struct WeekPageView<DateContent: View, DayContent: View>: View {
                     }
                 }
                 .onChange(of: selectedDate) {
+                    // Suppress pager scrolling while the week strip is being
+                    // dragged — prevents conflicting animated scrollTo calls
+                    // that pile up and leave the pager out of sync
+                    if isWeekStripDragging { return }
+
                     // When activeOnly, ignore inactive dates — the simultaneous
                     // drag gesture on WeekView handles snapping on release
                     if activeOnly && !pageDates.contains(where: { $0.zeroHour == selectedDate.zeroHour }) {
@@ -123,6 +128,22 @@ public struct WeekPageView<DateContent: View, DayContent: View>: View {
 
                     let targetIndex = pageIndex(for: selectedDate)
                     if lastPagedToIndex != targetIndex {
+                        lastPagedToIndex = targetIndex
+                        withAnimation {
+                            proxy.scrollTo(targetIndex, anchor: .leading)
+                        }
+                    }
+                }
+                .onChange(of: isWeekStripDragging) { _, isDragging in
+                    if !isDragging {
+                        // Finger lifted — week strip may still be decelerating.
+                        // Reset lastPagedToIndex so deceleration-driven
+                        // selectedDate changes flow through onChange naturally.
+                        lastPagedToIndex = nil
+                        if activeOnly && !pageDates.contains(where: { $0.zeroHour == selectedDate.zeroHour }) {
+                            return // onEnded handler will snap selectedDate
+                        }
+                        let targetIndex = pageIndex(for: selectedDate)
                         lastPagedToIndex = targetIndex
                         withAnimation {
                             proxy.scrollTo(targetIndex, anchor: .leading)
