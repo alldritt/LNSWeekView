@@ -23,7 +23,7 @@ struct ContentView: View {
     @State var selectedDate = Date.today
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
                 WeekView(dates: dates, selectedDate: $selectedDate) { date, today in
                     DateCalendarView(date: date, active: dates.contains(date))

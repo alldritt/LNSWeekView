@@ -71,7 +71,6 @@ struct CurrentDateView: View {
             Rectangle()
                 .fill(.primary.opacity(0.4))
                 .frame(height: 0.5)
-                .offset(y: 0.5)
             CurrentDayIndicator()
                 .fill(.primary)
                 .padding(.bottom, 4)
@@ -112,12 +111,6 @@ public struct WeekView<DateContent: View>: View {
             }
             .frame(height: 82)
             .padding(.bottom, 8)
-        }
-        .onChange(of: todayDate) {
-            print("currentDate changed")
-        }
-        .onChange(of: selectedDate) {
-            print("selectedDate changed")
         }
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name.NSCalendarDayChanged).receive(on: DispatchQueue.main)) { _ in
             //  We have progressed from one day to another
