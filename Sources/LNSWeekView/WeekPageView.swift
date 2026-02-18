@@ -19,6 +19,7 @@ public struct WeekPageView<DateContent: View, DayContent: View>: View {
 
     @State private var scrollPositionIndex: Int?
     @State private var lastPagedToIndex: Int?
+    @State private var isWeekStripDragging = false
 
     private let pageDates: [Date]
 
@@ -76,6 +77,20 @@ public struct WeekPageView<DateContent: View, DayContent: View>: View {
     public var body: some View {
         VStack(spacing: 0) {
             WeekView(dates: dates, selectedDate: $selectedDate, content: dateContent)
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { _ in isWeekStripDragging = true }
+                        .onEnded { _ in
+                            isWeekStripDragging = false
+                            // Snap to nearest active date if drag ended on an inactive date
+                            if activeOnly && !pageDates.contains(where: { $0.zeroHour == selectedDate.zeroHour }) {
+                                let targetIndex = pageIndex(for: selectedDate)
+                                withAnimation {
+                                    selectedDate = pageDates[targetIndex]
+                                }
+                            }
+                        }
+                )
 
             ScrollViewReader { proxy in
                 ScrollView(.horizontal, showsIndicators: false) {
@@ -100,15 +115,13 @@ public struct WeekPageView<DateContent: View, DayContent: View>: View {
                     }
                 }
                 .onChange(of: selectedDate) {
-                    let targetIndex = pageIndex(for: selectedDate)
-
-                    // When activeOnly, snap non-active dates to nearest active date
+                    // When activeOnly, ignore inactive dates — the simultaneous
+                    // drag gesture on WeekView handles snapping on release
                     if activeOnly && !pageDates.contains(where: { $0.zeroHour == selectedDate.zeroHour }) {
-                        let snapped = pageDates[targetIndex]
-                        selectedDate = snapped
                         return
                     }
 
+                    let targetIndex = pageIndex(for: selectedDate)
                     if lastPagedToIndex != targetIndex {
                         lastPagedToIndex = targetIndex
                         withAnimation {

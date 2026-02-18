@@ -28,6 +28,8 @@ struct DateContentView: View {
         .background(Color.gray.opacity(0.1))
     }
 }
+
+
 struct ContentView: View {
     
     let dates = Set<Date>([Date.today.next(day: -8),
@@ -40,15 +42,21 @@ struct ContentView: View {
                            Date.today.next(day: 5)])
 
     @State var selectedDate = Date.today
-    
+    @State var activeDaysOnly = false
+
     var body: some View {
         NavigationStack {
-            WeekPageView(dates: dates,
-                         selectedDate: $selectedDate,
-                         activeOnly: true) { date, today in
-                DateCalendarView(date: date, active: dates.contains(date))
-            } dayContent: { date in
-                DateContentView(date: date, dates: dates)
+            VStack(spacing: 0) {
+                WeekPageView(dates: dates,
+                             selectedDate: $selectedDate,
+                             activeOnly: activeDaysOnly) { date, today in
+                    DateCalendarView(date: date, active: dates.contains(date))
+                } dayContent: { date in
+                    DateContentView(date: date, dates: dates)
+                }
+                
+                Toggle("Active Days Only", isOn: $activeDaysOnly)
+                    .padding(10)
             }
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle("LNSWeekDay Example")
