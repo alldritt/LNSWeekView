@@ -9,6 +9,25 @@ import SwiftUI
 import LNSWeekView
 
 
+
+struct DateContentView: View {
+    let date: Date
+    let dates: Set<Date>
+    
+    var body: some View {
+        VStack {
+            Spacer()
+            Text("\(date.monthName) \(date.dayOfMonth)")
+                .font(.title)
+            Text("Weekday: \(date.weekday)")
+            Text("Weekday: \(date.weekdaySymbol)")
+            Text("Active Date: \(dates.contains(date) ? "YES" : "NO")")
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.gray.opacity(0.1))
+    }
+}
 struct ContentView: View {
     
     let dates = Set<Date>([Date.today.next(day: -8),
@@ -24,22 +43,12 @@ struct ContentView: View {
     
     var body: some View {
         NavigationStack {
-            VStack {
-                WeekView(dates: dates, selectedDate: $selectedDate) { date, today in
-                    DateCalendarView(date: date, active: dates.contains(date))
-                }
-                
-                Rectangle()
-                    .foregroundStyle(Color.gray)
-                    .overlay(
-                        VStack {
-                            Text("\(selectedDate.monthName) \(selectedDate.dayOfMonth)")
-                            Text("Weekday: \(selectedDate.weekday)")
-                            Text("Weekday: \(selectedDate.weekdaySymbol)")
-                            Text("Active Date: \(dates.contains(selectedDate) ? "YES" : "NO")")
-                        }
-                    )
-                    .padding(3)
+            WeekPageView(dates: dates,
+                         selectedDate: $selectedDate,
+                         activeOnly: true) { date, today in
+                DateCalendarView(date: date, active: dates.contains(date))
+            } dayContent: { date in
+                DateContentView(date: date, dates: dates)
             }
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle("LNSWeekDay Example")
