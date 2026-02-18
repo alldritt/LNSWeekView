@@ -11,8 +11,10 @@ import LNSSwiftUIExtras
 
 struct ScrollingWeekView<Content: View>: View {
     private let itemSpacing = CGFloat(5)
+    private let edgePadding = 3
 
     @Binding var selectedDate: Date
+    @State private var scrollPositionIndex: Int?
 
     let dateRange: DateInterval
     let content: (_ value: Date) -> Content
@@ -20,7 +22,14 @@ struct ScrollingWeekView<Content: View>: View {
     init(selectedDate: Binding<Date>, dateRange: DateInterval, @ViewBuilder content: @escaping (_ value: Date) -> Content) {
         self._selectedDate = selectedDate
         self.content = content
-        self.dateRange = DateInterval(start: dateRange.start.zeroHour, end: dateRange.end.zeroHour)
+        let normalizedRange = DateInterval(start: dateRange.start.zeroHour, end: dateRange.end.zeroHour)
+        self.dateRange = normalizedRange
+
+        let oneDay = TimeInterval(24 * 60 * 60)
+        let count = Int((normalizedRange.duration / oneDay).rounded()) + 1
+        let clamped = max(selectedDate.wrappedValue.zeroHour, normalizedRange.start)
+        let days = DateInterval(start: normalizedRange.start, end: clamped).duration / oneDay
+        self._scrollPositionIndex = State(initialValue: min(Int(days.rounded()), count - 1))
     }
 
     private var dayCount: Int {
@@ -32,31 +41,56 @@ struct ScrollingWeekView<Content: View>: View {
         dateRange.start.next(day: index)
     }
 
+    private func dayIndex(for date: Date) -> Int {
+        let oneDay = TimeInterval(24 * 60 * 60)
+        let clamped = max(date.zeroHour, dateRange.start)
+        let days = DateInterval(start: dateRange.start, end: clamped).duration / oneDay
+        return min(Int(days.rounded()), dayCount - 1)
+    }
+
     var body: some View {
+        let totalCount = edgePadding + dayCount + edgePadding
+
         ScrollViewReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: itemSpacing) {
-                    ForEach(0..<dayCount, id: \.self) { index in
-                        let date = date(at: index)
-                        content(date)
-                            .containerRelativeFrame(.horizontal, count: 7, span: 1, spacing: itemSpacing)
-                            .id(date)
-                            .onTapGesture {
-                                withAnimation {
+                HStack(spacing: itemSpacing) {
+                    ForEach(0..<totalCount, id: \.self) { index in
+                        let dateIndex = index - edgePadding
+
+                        if dateIndex >= 0 && dateIndex < dayCount {
+                            let date = date(at: dateIndex)
+                            content(date)
+                                .containerRelativeFrame(.horizontal, count: 7, span: 1, spacing: itemSpacing)
+                                .onTapGesture {
                                     selectedDate = date
+                                    withAnimation {
+                                        proxy.scrollTo(dateIndex, anchor: .leading)
+                                    }
                                 }
-                            }
+                        } else {
+                            Color.clear
+                                .containerRelativeFrame(.horizontal, count: 7, span: 1, spacing: itemSpacing)
+                        }
                     }
                 }
                 .scrollTargetLayout()
             }
             .scrollTargetBehavior(.viewAligned)
-            .onAppear {
-                proxy.scrollTo(selectedDate, anchor: .center)
+            .scrollPosition(id: $scrollPositionIndex)
+            .onChange(of: scrollPositionIndex) { _, newIndex in
+                if let newIndex, newIndex >= 0, newIndex < dayCount {
+                    let newDate = date(at: newIndex)
+                    if selectedDate.zeroHour != newDate.zeroHour {
+                        selectedDate = newDate
+                    }
+                }
             }
             .onChange(of: selectedDate) {
-                withAnimation {
-                    proxy.scrollTo(selectedDate, anchor: .center)
+                let targetIndex = dayIndex(for: selectedDate)
+                if scrollPositionIndex != targetIndex {
+                    withAnimation {
+                        proxy.scrollTo(targetIndex, anchor: .leading)
+                    }
                 }
             }
         }
