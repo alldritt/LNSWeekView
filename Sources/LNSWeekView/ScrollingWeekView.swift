@@ -15,6 +15,7 @@ struct ScrollingWeekView<Content: View>: View {
 
     @Binding var selectedDate: Date
     @State private var scrollPositionIndex: Int?
+    @State private var lastScrolledToIndex: Int?
 
     let dateRange: DateInterval
     let content: (_ value: Date) -> Content
@@ -63,6 +64,7 @@ struct ScrollingWeekView<Content: View>: View {
                                 .containerRelativeFrame(.horizontal, count: 7, span: 1, spacing: itemSpacing)
                                 .onTapGesture {
                                     selectedDate = date
+                                    lastScrolledToIndex = dateIndex
                                     withAnimation {
                                         proxy.scrollTo(dateIndex, anchor: .leading)
                                     }
@@ -81,13 +83,22 @@ struct ScrollingWeekView<Content: View>: View {
                 if let newIndex, newIndex >= 0, newIndex < dayCount {
                     let newDate = date(at: newIndex)
                     if selectedDate.zeroHour != newDate.zeroHour {
+                        lastScrolledToIndex = newIndex
                         selectedDate = newDate
                     }
                 }
             }
+            .onAppear {
+                let targetIndex = dayIndex(for: selectedDate)
+                lastScrolledToIndex = targetIndex
+                DispatchQueue.main.async {
+                    proxy.scrollTo(targetIndex, anchor: .leading)
+                }
+            }
             .onChange(of: selectedDate) {
                 let targetIndex = dayIndex(for: selectedDate)
-                if scrollPositionIndex != targetIndex {
+                if lastScrolledToIndex != targetIndex {
+                    lastScrolledToIndex = targetIndex
                     withAnimation {
                         proxy.scrollTo(targetIndex, anchor: .leading)
                     }
